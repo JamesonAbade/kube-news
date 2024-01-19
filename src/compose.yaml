@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:13.13
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: pg1234
+      POSTGRES_USER: kubenews
+      POSTGRES_DB: kubenews
+  kubenews:
+    image: kube-news
+    depends_on:
+      - postgres
+    build: 
+      context: ./src
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      DB_DATABASE: kubenews
+      DB_USERNAME: kubenews
+      DB_PASSWORD: pg1234
+      DB_HOST: postgres #nome do services que está com o banco de dados
+#criando rede pra que os containeres consigam se enxergar
+#os tipos são bridge, host, macvlan, none
+networks:
+  kubenews_net:
+    driver: bridge
