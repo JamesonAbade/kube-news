@@ -1,3 +1,4 @@
+// Processo de CI
 pipeline {
     agent any
     stages {
@@ -18,9 +19,16 @@ pipeline {
                 }
             }
         }
+
+// Processo de CD
         stage("Deploy Kubernetes") {
+            environment {
+                tag_version = "${env.BUILD_ID}"
+            }
             steps {
-                sh "echo 'Deploy no Kubernetes'"
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh 'sed -i "s/{{TAG}}/$tag_version/g" ./k8s/deployment.yaml'
+                    sh 'kubectl apply -f k8s/deployment.yaml'
                 }     
             }         
         } 
